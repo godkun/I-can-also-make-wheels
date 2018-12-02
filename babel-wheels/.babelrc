@@ -1,0 +1,13 @@
+{
+  "plugins": [
+    [
+      "./console-clear",
+      {
+        "ignore": [
+          "time",
+          "timeEnd"
+        ]
+      }
+    ]
+  ]
+}
