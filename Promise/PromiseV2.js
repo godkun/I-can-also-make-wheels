@@ -141,6 +141,48 @@ Promise.prototype.then = function (onResolved, onRejected) {
   
 }
 
+function ResolvePromise(promise,x,resolve,reject) {
+  if (promise === x) {
+    reject(new TypeError('promise不能循环调自己'))
+    return
+  }
+
+  if (x instanceof Promise) {
+    x.then(resolve,reject)
+    return
+  }
+
+  // 笔记，，，不要过多调用
+  if (x !== null && (typeof x === 'object' || typeof x === 'function')) {
+    try {
+      let then = x.then
+      let called = false
+      if (typeof then === 'function' ) {
+        then.call(x, function resolvePromise(y) {
+          // 笔记
+          if (called) return
+          called = true
+          ResolvePromise(promise, y, resolve, reject)
+        }, function rejectPromise(r){
+          if (called) return
+          called = true
+          reject(r)
+        })
+      }else {
+        resolve(x)
+      }
+    }catch (err) {
+      if (called) return
+      called = true
+      reject(err)
+    }
+  } else {
+    resolve(x)
+  }
+
+
+}
+
 // 测试
 Promise.deferred = function () {
   let dfd = {
